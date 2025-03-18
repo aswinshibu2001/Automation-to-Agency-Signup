@@ -15,12 +15,20 @@ class Automation:
             template="""
         Analyze the following website content and determine if it belongs to a Digital Marketing Agency.
 
-        Look for these keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital Marketing Agency, Agency, Website Creation.
+        Look for similar keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing , Agency, Website Creation,
+        brands,web,design,Boosts creativity,Reduces costs.
 
-        If ALL keywords appear multiple times then classify it as **"Digital Marketing Agency"**.
-        Otherwise classify it as **"Not a Digital Marketing Agency"**.
-        No explanations.
+        ***The website content may not mention all the keywords. Use logic and find keywords similar to the above.****
 
+        **if the above keywords or similar keywords are found then it can be a digital marketing agency**
+       
+       format the output as a json object with two field as  ***(status  "accepted" :  |"rejected") and (reason : )***
+       give reason.
+       ***Ensure proper json format with opening and closing brackets***
+        ***Dont give explanation. Just display only the json object.***
+
+        
+      
         Website Content:
         {website_content}
 
@@ -29,6 +37,6 @@ class Automation:
         )
     def prediction(self):
         chain = LLMChain(llm=self.model, prompt=self.prompt)
-        response = chain.run(self.website_content[:1000])
+        response = chain.run(self.website_content[:5000])
         return response
 
