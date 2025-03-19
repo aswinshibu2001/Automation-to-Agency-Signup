@@ -4,7 +4,9 @@ This is a fully enabled automation to the process of agency signup on the CookiY
 When the client submit the sign up form, an Ai process will evaluate the client website and takes the decision to either accept or reject the client request. Accordingly an automatic notification mail will be sent to the client and their request will be stored for future refernce in a csv file.
 
 The program can be runned using the command `python main.py`
+
 The requirements needed to build this project is specified in the `requirements.txt` file
+
 Install those requirements using `pip install -r requirements.txt`
 
 Instead of submmiting the signup form , here i have manullay given the client email and their website url.
