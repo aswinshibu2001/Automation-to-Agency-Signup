@@ -15,7 +15,7 @@ https://huggingface.co/
 async def main():
 
     url="https://huggingface.co/"
-    email='aswinshibu2024gcsj@gmail.com' 
+    email="masterofkings2023@gmail.com" 
 
     async with AsyncWebCrawler() as crawler:
         result = await crawler.arun(
@@ -27,17 +27,17 @@ async def main():
         f.close()
         automate=Automation('markdown4.txt')
 
-        response = automate.prediction()
+        output = automate.prediction()
         print("########################################")
     
-        if response[0]>response[1]:
+        if output["digital marketing agency"]=='yes' and output['confidence scores'][0]>output['confidence scores'][1] :
             status="accepted"
         else:
             status="rejected"
-
+        print(status)
         save_csv.write_csv(email,url,status)
 
-        # mail.send_email(email,url,data["status"],data["reason"])
-
+        mail.send_email(email,url,status)
+        
 if __name__ == "__main__":
     asyncio.run(main())

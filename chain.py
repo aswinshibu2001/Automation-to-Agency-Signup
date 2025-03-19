@@ -1,54 +1,72 @@
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
 from langchain.schema.runnable import RunnableLambda
-from transformers import pipeline
 import config
+import re
+import json
 
 class Automation:
     def __init__(self,filename):
         self.model = ChatGroq(model="mistral-saba-24b")
-
+        self.count=0
         with open(filename, "r", encoding="utf-8") as f:
             self.website_content = f.read()
 
         self.prompt = PromptTemplate(
             input_variables=[self.website_content],
-            template="""
-            Analyze the following website content and classify it.
+            template="""You are a classification model. Your task is to analyze the given website content {website_content} and determine if it belongs to a **Digital Marketing Agency**.  
 
-            Content: {website_content}
+            ### **Classification Logic**
+            - Look for keywords related to digital marketing such as:
+            * Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing, Agency, Website Creation, brands, web, design, Boosts creativity, Reduces costs.
+            - You may also detect similar keywords that imply digital marketing services.
 
-            Look for similar keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing , Agency, Website Creation,
-            brands,web,design,Boosts creativity,Reduces costs.
+            ### **Strict JSON Output Format**  
+            ONLY return a valid JSON object in the format below. **No explanations, no additional text—just the JSON.**
 
-            ***The website content may not mention all the keywords. Use logic and find keywords similar to the above.****
-
-            **if the above keywords or similar keywords are found then it can be a digital marketing agency**
-
-            ***Provide the answer in the following JSON format:***
-            ```json
+            
             {{
-            "classification": "Yes" or "No"
+            "Digital Marketing Agency": "Yes" or "No",
+            "Confidence Scores": [score1, score2]  // First score → Digital Marketing, Second score → Not Digital Marketing
             }}
-        """
-        )
 
-        self.classifier = pipeline("zero-shot-classification",model="facebook/bart-large-mnli")
+        Example Outputs
 
-
-    def prediction(self):
-        # chain = LLMChain(llm=self.model, prompt=self.prompt)
-        chain = self.prompt | self.model 
-        # response = chain.run(self.website_content[:5000])
-        response = chain.invoke(self.website_content[:5000])
-
-        sequence_to_classify = response.content
-        candidate_labels = ['Yes','No']
-        output = self.classifier(sequence_to_classify, candidate_labels)
-
-        print(response.content)
-        print(output['scores'])
-
-        return output['scores']
+        For a Digital Marketing Agency, return:
+        {{
+        "Digital Marketing Agency": "Yes",
+        "Confidence Scores": [99.00, 1.00]
         
+        }}
 
+        For Not a Digital Marketing Agency, return:
+        {{
+        "Digital Marketing Agency": "No",
+        "Confidence Scores": [1.00, 99.00]
+        }}
+
+       """ )
+
+        
+    def prediction(self):
+       
+        chain = self.prompt | self.model 
+        response = chain.invoke(self.website_content[:5000])
+    
+        # print(response.content)
+        match = re.search(r'\{.*\}', response.content.lower(), re.DOTALL)  
+        
+        if match:
+            json_text = match.group(0)  
+            data = json.loads(json_text) 
+            self.count = 0
+        else:
+            self.count+=1
+            if self.count==3:
+                raise ValueError("Max retries reached. Could not extract JSON.")
+            print("checking the website again")
+            return self.prediction()
+        
+        print(data) 
+        return data
+        

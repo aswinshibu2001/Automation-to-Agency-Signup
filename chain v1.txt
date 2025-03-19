@@ -1,0 +1,74 @@
+from langchain_groq import ChatGroq
+from langchain.prompts import PromptTemplate
+from langchain.schema.runnable import RunnableLambda
+from transformers import pipeline
+import config
+
+class Automation:
+    def __init__(self,filename):
+        self.model = ChatGroq(model="mistral-saba-24b")
+
+        with open(filename, "r", encoding="utf-8") as f:
+            self.website_content = f.read()
+
+        self.prompt = PromptTemplate(
+            input_variables=[self.website_content],
+            template="""
+            Analyze the following website content and classify it.
+
+            Content: {website_content}
+
+            Look for similar keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing , Agency, Website Creation,
+            brands,web,design,Boosts creativity,Reduces costs.
+
+            ***The website content may not mention all the keywords. Use logic and find keywords similar to the above.****
+
+            **if the above keywords or similar keywords are found then it can be a digital marketing agency**
+
+            ***Provide the answer in the following JSON format:***
+                        
+                        {{
+                        "Digital Marketing Agency": "Yes" or "No"
+                        }}            
+        """
+        )
+
+        self.classifier = pipeline("zero-shot-classification",model="facebook/bart-large-mnli")
+        
+    def prediction(self):
+       
+        chain = self.prompt | self.model 
+        response = chain.invoke(self.website_content[:5000])
+    
+        print(response.content)
+        # print(output['scores'])
+        text2=response.content
+        # return output['scores']
+        prompt2 = PromptTemplate(
+            input_variables=["text"],
+            template="""
+            You are a classifier model. Only print the output score in the format of a list. No explanations.
+
+            The classification result will be given for the text: {text}.  
+            You have to return the output scores as a two-element list corresponding to the labels below:
+
+            Labels:  
+            1. "Digital Marketing"  
+            2. "Not Digital Marketing"  
+
+            If the content is classified as a Digital Marketing agency, the label "Digital Marketing" will have a higher score.  
+            If it is not, then the label "Not Digital Marketing" will have a higher score.
+
+            ### **Example Outputs**  
+
+            For a Digital Marketing Agency: [99.00, 1.00]
+
+            For a Non-Digital Marketing Agency: [1.00, 99.00]
+
+            ***Only return the output scores as a list. No explanations.***   
+        """
+        )
+        chain2 = prompt2 | self.model 
+        response2 = chain2.invoke({"text": text2})
+        print("**********************")
+        print(response2.content)
