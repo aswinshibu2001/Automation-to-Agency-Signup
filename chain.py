@@ -1,11 +1,12 @@
 from langchain_groq import ChatGroq
 from langchain.prompts import PromptTemplate
-from langchain.chains import LLMChain
+from langchain.schema.runnable import RunnableLambda
+from transformers import pipeline
 import config
 
 class Automation:
     def __init__(self,filename):
-        self.model = ChatGroq(model="llama3-8b-8192")
+        self.model = ChatGroq(model="mistral-saba-24b")
 
         with open(filename, "r", encoding="utf-8") as f:
             self.website_content = f.read()
@@ -13,30 +14,41 @@ class Automation:
         self.prompt = PromptTemplate(
             input_variables=[self.website_content],
             template="""
-        Analyze the following website content and determine if it belongs to a Digital Marketing Agency.
+            Analyze the following website content and classify it.
 
-        Look for similar keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing , Agency, Website Creation,
-        brands,web,design,Boosts creativity,Reduces costs.
+            Content: {website_content}
 
-        ***The website content may not mention all the keywords. Use logic and find keywords similar to the above.****
+            Look for similar keywords: Services, Web Design, Web Development, SEO Agency, Ads Agency, Digital, Marketing , Agency, Website Creation,
+            brands,web,design,Boosts creativity,Reduces costs.
 
-        **if the above keywords or similar keywords are found then it can be a digital marketing agency**
-       
-       format the output as a json object with two field as  ***(status  "accepted" :  |"rejected") and (reason : )***
-       give reason.
-       ***Ensure proper json format with opening and closing brackets***
-        ***Dont give explanation. Just display only the json object.***
+            ***The website content may not mention all the keywords. Use logic and find keywords similar to the above.****
 
-        
-      
-        Website Content:
-        {website_content}
+            **if the above keywords or similar keywords are found then it can be a digital marketing agency**
 
-        Final Answer:
+            ***Provide the answer in the following JSON format:***
+            ```json
+            {{
+            "classification": "Yes" or "No"
+            }}
         """
         )
+
+        self.classifier = pipeline("zero-shot-classification",model="facebook/bart-large-mnli")
+
+
     def prediction(self):
-        chain = LLMChain(llm=self.model, prompt=self.prompt)
-        response = chain.run(self.website_content[:5000])
-        return response
+        # chain = LLMChain(llm=self.model, prompt=self.prompt)
+        chain = self.prompt | self.model 
+        # response = chain.run(self.website_content[:5000])
+        response = chain.invoke(self.website_content[:5000])
+
+        sequence_to_classify = response.content
+        candidate_labels = ['Yes','No']
+        output = self.classifier(sequence_to_classify, candidate_labels)
+
+        print(response.content)
+        print(output['scores'])
+
+        return output['scores']
+        
 

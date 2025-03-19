@@ -1,24 +1,27 @@
 import asyncio
 from crawl4ai import *
 from chain import Automation
-import json
-import csv
-import re
-import os
+import save_csv
 import mail
+
 '''
 https://www.digitalsilk.com/
 https://www.baunfire.com/
 https://fourbynorth.com/
 https://www.langchain.com/langchain
+https://huggingface.co/
  '''
 
 async def main():
+
+    url="https://huggingface.co/"
+    email='aswinshibu2024gcsj@gmail.com' 
+
     async with AsyncWebCrawler() as crawler:
         result = await crawler.arun(
-            url="https://www.digitalsilk.com/",
+            url=url,
         )
-        # print(result.markdown)
+       
         f=open('markdown4.txt','w',encoding="utf-8")
         f.write(result.markdown)
         f.close()
@@ -26,39 +29,15 @@ async def main():
 
         response = automate.prediction()
         print("########################################")
-        print(response)
-        response = response.strip()  # Remove extra spaces/newlines
-
-        # Ensure the response starts with '{' and ends with '}'
-        if not response.startswith("{"):
-            response = "{" + response
-        if not response.endswith("}"):
-            response = response + "}"
-                
-        url="https://www.digitalsilk.com/"
-        email='aswinshibu2024gcsj@gmail.com'      
-        # Extract JSON object from text
-        match = re.search(r'\{.*\}', response, re.DOTALL)  # Finds the JSON part
-        if match:
-            json_text = match.group(0)  # Extract the JSON string
-            data = json.loads(json_text)  # Convert to dictionary
-            
-            csv_file = "output.csv"
-            write_header = not os.path.exists(csv_file) or os.stat(csv_file).st_size == 0
-            
-            
-            with open(csv_file, mode="a", newline="") as file:
-                writer = csv.writer(file)
-                if write_header:
-                    writer.writerow(["Email","url","Status", "Reason"])
-                # writer.writerow(["Status", "Reason"])  # Writing header
-                writer.writerow([email,url,data["status"], data["reason"]])  # Writing data
-
-            print(f"Data saved to {csv_file}")
+    
+        if response[0]>response[1]:
+            status="accepted"
         else:
-            print("No JSON found in the response")
+            status="rejected"
 
-        mail.send_email(email,data["status"],data["reason"])
+        save_csv.write_csv(email,url,status)
+
+        # mail.send_email(email,url,data["status"],data["reason"])
 
 if __name__ == "__main__":
     asyncio.run(main())
