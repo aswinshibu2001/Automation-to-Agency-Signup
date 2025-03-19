@@ -53,7 +53,6 @@ class Automation:
         chain = self.prompt | self.model 
         response = chain.invoke(self.website_content[:5000])
     
-        # print(response.content)
         match = re.search(r'\{.*\}', response.content.lower(), re.DOTALL)  
         
         if match:

@@ -1,7 +1,5 @@
-import os
 import smtplib
 from email.message import EmailMessage
-from email.utils import formataddr
 import config
 
 
@@ -55,11 +53,3 @@ def send_email(receiver_email,url,status):
         print("mail not sent error ")
 
     
-
-# if __name__=="__main__":
-#     send_email(
-#         "masterofkings2023@gmail.com",
-#         "subject",
-#         "accepted",
-#         "reson for accept"
-#     )
