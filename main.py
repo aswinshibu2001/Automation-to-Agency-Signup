@@ -19,7 +19,7 @@ async def main(url,email):
 
     curr_dt = datetime.now()
     if not validators.url(url):
-        # mail.send_email(email,url,status="rejected")
+        mail.send_email(email,url,status="rejected")
         print(f"Invalid URL format: {url}")
         return
 
@@ -31,7 +31,7 @@ async def main(url,email):
             f=open(filename,'w',encoding="utf-8")
             f.write(result.markdown)
         else:
-            # mail.send_email(email,url,status="rejected")
+            mail.send_email(email,url,status="rejected")
             print("No content to write.")
             return
 
@@ -45,11 +45,11 @@ async def main(url,email):
         print(status)
         save_csv.write_csv(curr_dt,email,url,status)
 
-        # mail.send_email(email,url,status)
+        mail.send_email(email,url,status)
 
 
 
-url="https://huggingface.co/"
+url="https://www.digitalsilk.com/"
 email="masterofkings2023@gmail.com" 
 
 if __name__ == "__main__":

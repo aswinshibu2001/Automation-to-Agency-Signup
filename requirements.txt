@@ -1,3 +1,4 @@
 crawl4ai
 langchain
+validators
 langchain-groq
