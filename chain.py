@@ -8,7 +8,7 @@ import json
 class Automation:
     def __init__(self,filename):
         self.model = ChatGroq(model="gemma2-9b-it") #mistral-saba-24b
-        self.count=0
+        
         with open(filename, "r", encoding="utf-8") as f:
             self.website_content = f.read()
 
