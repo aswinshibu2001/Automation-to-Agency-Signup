@@ -19,7 +19,7 @@ async def main(url,email):
 
     curr_dt = datetime.now()
     if not validators.url(url):
-        # mail.send_email(email,url,status="rejected")
+        mail.send_email(email,url,status="rejected")
         print(f"Invalid URL format: {url}")
         return
 
@@ -32,7 +32,7 @@ async def main(url,email):
             f.write(result.markdown)
             f.close()
         else:
-            # mail.send_email(email,url,status="rejected")
+            mail.send_email(email,url,status="rejected")
             print("Bad request. Check url and try again")
             return
 
@@ -48,16 +48,15 @@ async def main(url,email):
         
         save_csv.write_csv(curr_dt,email,url,status)
 
-        # mail.send_email(email,url,status)
+        mail.send_email(email,url,status)
 
 
 
-# url="https://www.digitalsilk.com/"
-# email="masterofkings2023@gmail.com" 
+
 
 if __name__ == "__main__":
     while True:
-        # asyncio.run(main(url,email))
+        
         print("\n\tWelcome to CookieYes!!\n")
         print("1.Sign up")
         print("2.Exit")
@@ -69,7 +68,10 @@ if __name__ == "__main__":
             try:
                 asyncio.run(main(url,email))
             except Exception as e:
+                status="rejected"
+                mail.send_email(email,url,status)
                 print(f"Unexpected error occured: {e}")
                 print("Restarting signup process...\n")
         else:
+            
             exit()
