@@ -48,8 +48,9 @@ def send_email(receiver_email,url,status):
             server.starttls()
             server.login(SENDER_EMAIL,SENDER_PASSWORD)
             server.sendmail(SENDER_EMAIL,receiver_email,msg.as_string())
-        print("mail sent successfully")
+        # print("mail sent successfully")
     except:
-        print("mail not sent error ")
+        # print("mail not sent error ")
+        pass
 
     

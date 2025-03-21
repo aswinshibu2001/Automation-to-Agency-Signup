@@ -11,5 +11,5 @@ def write_csv(curr_dt,email,url,status):
             writer.writerow(["Date","Email","url","Status"])   
         writer.writerow([curr_dt,email,url,status]) 
 
-        print(f"Data saved to {csv_file}")
+        # print(f"Data saved to {csv_file}")
     

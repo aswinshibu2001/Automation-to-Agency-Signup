@@ -54,18 +54,14 @@ class Automation:
         response = chain.invoke(self.website_content[:5000])
     
         match = re.search(r'\{.*\}', response.content.lower(), re.DOTALL)  
-        
+        # print(response.content) # for debugging
         if match:
             json_text = match.group(0)  
             data = json.loads(json_text) 
-            self.count = 0
+           
         else:
-            self.count+=1
-            if self.count==4:
-                raise ValueError("Max retries reached. Could not extract JSON.")
-            print("checking the website again")
-            return self.prediction()
-        
-        print(data) 
+            raise ValueError(" Could not extract JSON.")
+            
+        # print(data) 
         return data
         

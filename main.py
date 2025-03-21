@@ -19,7 +19,7 @@ async def main(url,email):
 
     curr_dt = datetime.now()
     if not validators.url(url):
-        mail.send_email(email,url,status="rejected")
+        # mail.send_email(email,url,status="rejected")
         print(f"Invalid URL format: {url}")
         return
 
@@ -30,9 +30,10 @@ async def main(url,email):
         if result.markdown is not None and len(result.markdown)>100:
             f=open(filename,'w',encoding="utf-8")
             f.write(result.markdown)
+            f.close()
         else:
-            mail.send_email(email,url,status="rejected")
-            print("No content to write.")
+            # mail.send_email(email,url,status="rejected")
+            print("Bad request. Check url and try again")
             return
 
         automate=Automation(filename)
@@ -40,17 +41,35 @@ async def main(url,email):
         output = automate.prediction()
         if output["digital marketing agency"]=='yes' and output['confidence scores'][0]>output['confidence scores'][1] :
             status="accepted"
+            print("Your request accepted.Check mail for more information.")
         else:
             status="rejected"
-        print(status)
+            print("Your request rejected. Check mail for more information.")
+        
         save_csv.write_csv(curr_dt,email,url,status)
 
-        mail.send_email(email,url,status)
+        # mail.send_email(email,url,status)
 
 
 
-url="https://www.digitalsilk.com/"
-email="masterofkings2023@gmail.com" 
+# url="https://www.digitalsilk.com/"
+# email="masterofkings2023@gmail.com" 
 
 if __name__ == "__main__":
-    asyncio.run(main(url,email))
+    while True:
+        # asyncio.run(main(url,email))
+        print("\n\tWelcome to CookieYes!!\n")
+        print("1.Sign up")
+        print("2.Exit")
+        ch=int(input())
+        if ch==1:
+            email=input("\nEmail : ")
+            url=input("Url : ")
+            print("\n")
+            try:
+                asyncio.run(main(url,email))
+            except Exception as e:
+                print(f"Unexpected error occured: {e}")
+                print("Restarting signup process...\n")
+        else:
+            exit()
